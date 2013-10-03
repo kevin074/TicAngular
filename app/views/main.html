@@ -1,0 +1,48 @@
+	<div id="container">
+		<div id="box_container">
+		<div ng-repeat="row in ticTacToe">
+		<div class="box" ng-repeat="cell in row" ng-click="clickSquare($parent.$index, $index)">
+		</div>
+		</div>
+		</div>
+<!-- 		<div id="box_container" class="clearfix">
+			<div id ="col">
+				<div class="box" id ="a"></div>
+				<div class="box" id ="b"></div>
+				<div class="bot box" id ="c"></div>
+			</div>
+		
+			<div id ="col">
+				<div class="box" id ="d"></div>
+				<div class="box" id ="e"></div>
+				<div class="bot box" id ="f"></div>
+			</div>
+		
+			<div id="col">
+				<div class="right box" id ="g"></div>
+				<div class="right box" id ="h"></div>
+				<div class="right bot box" id ="i"></div>
+			</div>
+ -->
+			<div id="youWin"></div>
+		
+		</div>
+		
+		<div id="circle_container" class="clearfix">
+		<div class="circle" id="circle1">3</div>
+		<div class="circle" id="circle2">2</div>
+		<div class="circle" id="circle3">1</div>
+		<div class="circle" id="circle4">8</div>
+		<div class="circle" id="circle5">7</div>
+		<div class="circle" id="circle6">6</div>
+		<div class="circle"	id="circle7">5</div>
+		<div class="circle"	id="circle8">4</div>
+		</div>
+
+		<div id="others">
+		<input type="button" value="restart" id="restart"></input>
+		<div><p>it is <span id="playerCount">player1</span>'s turn<p></div>
+		</div>
+
+
+	</div>
