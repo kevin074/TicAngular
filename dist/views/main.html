@@ -1,11 +1,11 @@
-	<div id="container">
+<div id="container">
 		<div id="box_container" class="clearfix">
 		<div ng-repeat="row in room.ticTacToe">
 		<div class="box" ng-repeat="cell in row" ng-click="clickSquare($parent.$index, $index)">
 			{{cell}}
 		</div>
 		</div>
-		</div> 
+		</div>
 <!-- 		<div id="box_container" class="clearfix">
 			<div id ="col">
 				<div class="box" id ="a"></div>
@@ -41,12 +41,12 @@
 		</div>
  -->
 		<div id="others">
-		<input type="button" value="restart" id="restart" ng-click="restart()"></input>
-		<div><p>it is <span id="playerCount">player1</span>'s turn<p></div>
+		<input type="button" value="restart" id="restart" ng-click="restart()">
+		<div><p>it is <span id="playerCount">player1</span>'s turn</p><p></p></div>
 		</div>
 		<div ng-bind="wussup">
 			{{wussup}}
 		</div>
 
 
-	</div>
+	
