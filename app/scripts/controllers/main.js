@@ -1,8 +1,5 @@
 window.onload= function start() {
-	var player1;
-	var player2;
 	var gameover=false;
-	var clickID = "";
 	var winner = false;
 
 
