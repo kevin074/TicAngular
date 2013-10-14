@@ -1,6 +1,6 @@
 	<div id="container">
 		<div id="box_container" class="clearfix">
-		<div ng-repeat="row in room.ticTacToe">
+		<div ng-repeat="row in room[roomId].ticTacToe">
 		<div class="box" ng-repeat="cell in row" ng-click="clickSquare($parent.$index, $index)">
 			{{cell}}
 		</div>

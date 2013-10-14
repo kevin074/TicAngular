@@ -1,65 +1,120 @@
 angular.module('newticApp').controller(
 	'TicTacCtrl', function ($scope, angularFire)  {
+$scope.room = [];
+$scope.queue = {};
+var playerTurn = 1;
 
-	var database = new Firebase("https://kevintictactoe.firebaseio.com/room2");
-	$scope.room={};
+var room = new Firebase("https://kevintictactoe.firebaseio.com/rooms");
+angularFire(room, $scope, "room").then( function() {
 
-	angularFire(database, $scope, "room").then(function () { 
-	
-	if ($scope.room.playerID==undefined) {
-		$scope.room={
+  var queue = new Firebase("https://kevintictactoe.firebaseio.com/queue");
+  angularFire(queue, $scope, "queue").then( function () {
+
+    if ($scope.queue.roomId == undefined) {
+      console.log("I'm player 1");
+      $scope.player = "p1";
+
+	var createRoom = {
 		ticTacToe: [['','',''],['','',''],['','','']],
-		turnCount : 0,
-		playerID:[]
-		};
-		$scope.room.playerID.push(Math.random());
-	}
+		// turnCount : 0,
+		// playerID:[],
+ 	 	turn: "p1",
+        somebodyWon: false,
+        waiting: true
+    };
 
-	else if ($scope.room.playerID.length==1) {
-		$scope.room.ticTacToe = [['','',''],['','',''],['','','']]		
-		$scope.room.playerID.push(Math.random());
-	}
+    $scope.room=[createRoom];
+    $scope.roomId = $scope.room.length - 1;
+    $scope.queue.roomId = $scope.roomId;
+    console.log("Player 1's game is: " + $scope.roomId);
+    
+    } else {
+      console.log("I'm player 2");
+      $scope.player = "p2";
+      $scope.roomId = $scope.queue.roomId;
+      $scope.queue = {};
+      console.log("Player 2's game is: " + $scope.roomId);
+      $scope.room[$scope.roomId].waiting = false;
+    }
 
-	else  {
-		moreRooms();
-	}
+  });
+
+// 	var rooms = new Firebase("https://kevintictactoe.firebaseio.com/room2");
+// 	$scope.room={};
+// 	$scope.rooms=[];
+
+// 	angularFire(rooms, $scope, "rooms").then(function () { 
+
+// 	if ($scope.rooms.length==0) {
+// 		createRoom();
+// 		$scope.room.playerID.push(Math.random());
+// 		$scope.rooms.push($scope.room);
+// 	}
+// 	else {		
+// 		for (var i = 0; i<$scope.rooms.length; i++) {
+// 		if ($scope.rooms[i].playerID.length==0) {
+// 			createRoom();
+// 			$scope.rooms.playerID.push(Math.random());
+// 			break;
+// 		}
+
+// 		if ($scope.rooms[i].playerID.length==1) {
+// 			createRoom();
+// 			$scope.room = $scope.rooms[i];
+// 			$scope.room.playerID.push(Math.random())
+// 			break;
+// 		}
+// 		if ($scope.rooms[i].playerID.length ==2 && $scope.rooms[i+1]==undefined) {
+// 			createRoom(); 
+// 			$scope.rooms.push($scope.room);
+// 			$scope.room.playerID.push(Math.random());
+// 			break;}
+// 	}
+// 	}
+// 	console.log($scope.room.playerID);
+// 	setInterval(sync(),300);
+
+// function sync() {
+// 	$scope.room = $scope.rooms[0]; 
+// }
 
 
-	EVERYTHING();
-});
-
-function moreRooms () {
-		var roomPath = database.path.m[0];
-		var roomNumber = database.path.m[0].charAt(database.path.m[0].length-1);
-		database = new Firebase("https://kevintictactoe.firebaseio.com/"+(roomPath.replace(("room"+roomNumber),("room"+(parseInt(roomNumber)+1)))));
-		angularFire(database, $scope, "room").then(function () { 
-			$scope.room={
-			ticTacToe: [['','',''],['','',''],['','','']],
-			turnCount : 0,
-			playerID:[]
-			};
-	});
-};
-
-
-
-
-function EVERYTHING () {
 $scope.clickSquare = function (row,col) {
-	if (this.room.ticTacToe[row][col]==""){
-	if ($scope.room.turnCount%2==0){
-		this.room.ticTacToe[row][col]="X";
-		$scope.room.turnCount++;
+	if (!$scope.room[$scope.roomId].waiting) {
+	if ($scope.room[$scope.roomId].ticTacToe[row][col]==""){
+    console.log($scope.room[$scope.roomId]);
+	// if ($scope.room.turnCount%2==0){
+		if ($scope.room[$scope.roomId].turn == 'p1' && $scope.player=='p1') {
+		$scope.room[$scope.roomId].ticTacToe[row][col]="X"
+          $scope.room[$scope.roomId].turn = 'p2';
+
+		// $scope.rooms[0].ticTacToe[row][col]="X"
+		// $scope.room.turnCount++;
 	}
 
-	else {
-		this.room.ticTacToe[row][col]="O";
-		$scope.room.turnCount++;
+	else if ($scope.room[$scope.roomId].turn == 'p2' && $scope.player=='p2'){
+		$scope.room[$scope.roomId].ticTacToe[row][col]="O"
+          $scope.room[$scope.roomId].turn = 'p1';
+
+		// $scope.rooms[0].ticTacToe[row][col]="O"
+		// $scope.room.turnCount++;
 	};
 	};
+
+	// if ($scope.room[$scope.roomId].turn == 'p1') {
+ //    	$scope.room[$scope.roomId].turn = 'p2';
+ //    	} 
+ //    else {
+ //      $scope.room[$scope.roomId].turn = 'p1';
+ //    }
+
 };
 
-$scope.$watch("room.ticTacToe", function () {win("X")});
+// $scope.$watch("$scope.rooms", function () {
+// 	win("X")
+// 	// sync();
+// });
+
 
 $scope.restart = function () {
 	$scope.room.ticTacToe= [['','',''],['','',''],['','','']];
@@ -71,137 +126,74 @@ $scope.restart = function () {
 		document.getElementById("youWin").style.zIndex="99";
 	}
 
-	function win(checkHTML) {
-	var winCount=0;
-	for(var i=0; i<3; i++){
-		for(var d=0;d<3;d++){
-			if($scope.room.ticTacToe[i][d]==checkHTML){
-				winCount++;
-				if(winCount==3){
-					won();
-				}
-			}
-		}
-		winCount=0;
-		};
+// 	function win(checkHTML) {
+// 	var winCount=0;
+// 	for(var i=0; i<3; i++){
+// 		for(var d=0;d<3;d++){
+// 			if($scope.room.ticTacToe[i][d]==checkHTML){
+// 				winCount++;
+// 				if(winCount==3){
+// 					won();
+// 				}
+// 			}
+// 		}
+// 		winCount=0;
+// 		};
 
-		for(var i=0; i<3; i++){
-			for(var d=0;d<3;d++){
-				if($scope.room.ticTacToe[d][i]){
-				if($scope.room.ticTacToe[d][i]==checkHTML){
-					winCount++;
-					if(winCount==3){
-						won();
-					}
-				}
-			}
-			}
-					winCount=0;
-			};
+// 		for(var i=0; i<3; i++){
+// 			for(var d=0;d<3;d++){
+// 				if($scope.room.ticTacToe[d][i]){
+// 				if($scope.room.ticTacToe[d][i]==checkHTML){
+// 					winCount++;
+// 					if(winCount==3){
+// 						won();
+// 					}
+// 				}
+// 			}
+// 			}
+// 					winCount=0;
+// 			};
 
-			var i =0;
-			while(i<3) {
-				if($scope.room.ticTacToe[i][i]) {
-				if($scope.room.ticTacToe[i][i]==checkHTML){
-					winCount++;
-				}
-				}
-				i++;
-			};
-			if(winCount==3) {
-				won();
-			}
-			else {
-			winCount=0;
-			};
-			var i =2;
-			var k =0;
-			while(i>=0) {
-				if($scope.room.ticTacToe[k][i]) {
-				if($scope.room.ticTacToe[k][i]==checkHTML){
-					winCount++;
-				}
-				}
-				i--;
-				k++;
-			};
-			if(winCount==3) {
-				won();
-			}
-			else {
-			winCount=0;
-			};
-		if(checkHTML=="X") {
-				win("O");;
-		}
-};
+// 			var i =0;
+// 			while(i<3) {
+// 				if($scope.room.ticTacToe[i][i]) {
+// 				if($scope.room.ticTacToe[i][i]==checkHTML){
+// 					winCount++;
+// 				}
+// 				}
+// 				i++;
+// 			};
+// 			if(winCount==3) {
+// 				won();
+// 			}
+// 			else {
+// 			winCount=0;
+// 			};
+// 			var i =2;
+// 			var k =0;
+// 			while(i>=0) {
+// 				if($scope.room.ticTacToe[k][i]) {
+// 				if($scope.room.ticTacToe[k][i]==checkHTML){
+// 					winCount++;
+// 				}
+// 				}
+// 				i--;
+// 				k++;
+// 			};
+// 			if(winCount==3) {
+// 				won();
+// 			}
+// 			else {
+// 			winCount=0;
+// 			};
+// 		if(checkHTML=="X") {
+// 				win("O");;
+// 		}
+// };
 
 
 // var circleArray = new Array(9);
 // console.log(circleArray);
-
-
-
-
-// ----------------------------ALTERNATIVE WIN LOGIC TARGETTING HTML DIV ELEMENTS ------------------
-// 	win = function () {
-// 		horiWin();
-// 		vertiWin();
-// 		LeftRDiaWin();
-// 		RightLDiaWin();
-// 	};
-// 	horiWin = function () {
-// 		var winCount=0;
-// 		for (var i=0; i<3; i++){
-// 			for (var d=0; d<3; d++){
-// 				if(document.getElementsByClassName("box")[i*3+d].innerHTML==checkHTML) { 
-// 				if(winCount==3) {winner=true; console.log("winner");};
-// 				};
-// 			}
-// 			winCount=0;
-// 		}
-// 	};
-// 	vertiWin = function () {		
-// 		var winCount=0;
-// 		for (var i=0; i<3; i++){
-// 			for (var d=0; d<3; d++){
-// 				if(document.getElementsByClassName("box")[i*3+d].innerHTML==checkHTML) { 
-// 					winCount++;	
-// 				if(winCount==3) {winner=true; console.log("winner");};
-// 				};
-// 			}
-// 			winCount=0;
-// 		}
-// };
-// 	LeftRDiaWin = function () {
-// 		var winCount=0;
-// 		for (var i=0; i<3; i++){
-// 			for (var d=0; d<3; d++){
-// 				if(document.getElementsByClassName("box")[i+d*4]){
-// 				if(document.getElementsByClassName("box")[i+d*4].innerHTML==checkHTML) { 
-// 					winCount++;
-// 				if(winCount==3) {winner=true; console.log("winner");};
-// 				};
-// 				};
-// 			}
-// 			winCount=0;
-// 		}
-// 	};
-// 	RightLDiaWin = function () {		
-// 		var winCount=0;
-// 		for (var i=0; i<3; i++){
-// 			for (var d=0; d<3; d++){
-// 				if(document.getElementsByClassName("box")[i+2+d*2].innerHTML==checkHTML) { 
-// 					winCount++;
-// 				if(winCount==3) {winner=true; console.log("winner");};
-// 				};
-// 			}
-// 			winCount=0;
-// 		}
-// 	};
-// };
-// ------------------------------- END ----------------------------------------
-
 };
-
+});
 });
